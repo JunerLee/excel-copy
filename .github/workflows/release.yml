@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows (x64)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Setup Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "Excel Copy ${{ github.ref_name }}"
+          releaseBody: |
+            ## Excel Copy ${{ github.ref_name }}
+
+            轻量级 Excel 数据中转工具 —— 从 Excel 复制粘贴，编辑，导出为 xlsx/csv。
+
+            ### 安装说明
+
+            - **Excel-Copy_x64-setup.exe** — NSIS 安装包（推荐，双击安装即用）
+            - 运行环境：Windows 10 1803+ / Windows 11，需要 WebView2（随 Edge 自动安装，几乎所有 Win10/11 已有）
+
+            ### 使用方法
+
+            1. 在 Excel 中选中单元格，按 `Ctrl+C` 复制
+            2. 切换到 Excel Copy，按 `Ctrl+V` 粘贴
+            3. 编辑完成后，点击「保存」导出为 xlsx 或 csv
+          releaseDraft: false
+          prerelease: false
+          includeUpdaterJson: false

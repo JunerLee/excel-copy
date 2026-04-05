@@ -1,0 +1,259 @@
+/* 全局重置 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #f0f0f0;
+  font-family: "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  color: #333;
+  user-select: none;
+}
+
+/* 应用容器 */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 工具栏 */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #217346;
+  border-bottom: 1px solid #1a5c38;
+  flex-shrink: 0;
+  min-height: 42px;
+}
+
+.toolbar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin-right: 6px;
+  white-space: nowrap;
+}
+
+.toolbar-sep {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.3);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* 工具栏按钮 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s;
+  outline: none;
+}
+
+.btn-primary {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-primary:active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-success {
+  background: #1a9e4a;
+  color: #fff;
+  border-color: #158040;
+}
+
+.btn-success:hover {
+  background: #1db854;
+  border-color: #1a9e4a;
+}
+
+.btn-success:active {
+  background: #158040;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* 状态栏 */
+.statusbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 3px 12px;
+  background: #217346;
+  border-top: 1px solid #1a5c38;
+  flex-shrink: 0;
+  min-height: 24px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.statusbar-cell {
+  font-family: monospace;
+  font-size: 11px;
+}
+
+/* 表格容器 */
+.sheet-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+}
+
+/* 粘贴提示层（空状态） */
+.paste-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: #fafafa;
+  z-index: 10;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.paste-hint.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.paste-hint-icon {
+  font-size: 56px;
+  opacity: 0.25;
+}
+
+.paste-hint-text {
+  font-size: 16px;
+  color: #999;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.paste-hint-shortcut {
+  display: inline-block;
+  background: #e8e8e8;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-family: monospace;
+  font-size: 13px;
+  color: #555;
+}
+
+/* Toast 通知 */
+.toast-container {
+  position: fixed;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 8px 18px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #fff;
+  animation: toast-in 0.2s ease;
+  pointer-events: none;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.toast-success { background: #217346; }
+.toast-error   { background: #c0392b; }
+.toast-info    { background: #2980b9; }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Fortune-Sheet 强制铺满容器 */
+.luckysheet {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* 保存下拉菜单 */
+.save-dropdown {
+  position: relative;
+  display: inline-flex;
+}
+
+.save-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 140px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.save-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s;
+}
+
+.save-menu-item:hover {
+  background: #f0f7f3;
+  color: #217346;
+}
+
+.save-menu-item .ext {
+  font-weight: 600;
+  color: #217346;
+  min-width: 32px;
+}

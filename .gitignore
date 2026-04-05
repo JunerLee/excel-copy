@@ -1,0 +1,16 @@
+node_modules/
+dist/
+src-tauri/target/
+.env
+*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea/
+
+# Tauri build outputs (keep src-tauri/target tracked? no, too big)
+src-tauri/target/
