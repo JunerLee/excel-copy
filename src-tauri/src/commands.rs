@@ -43,39 +43,49 @@ impl Serialize for AppError {
     }
 }
 
-/// 导出为 xlsx
+/// 将 SheetData 的 cells 整理为 grid + 行列边界
+/// 返回 (grid, max_row, max_col)；若无数据则 grid 为空，max_row/max_col 为 0
+fn cells_to_grid(cells: &[CellData]) -> (HashMap<(u32, u32), String>, Option<u32>, Option<u32>) {
+    let mut grid: HashMap<(u32, u32), String> = HashMap::new();
+    let mut max_row: Option<u32> = None;
+    let mut max_col: Option<u32> = None;
+
+    for cell in cells {
+        if let Some(ref v) = cell.v {
+            if !v.is_empty() {
+                grid.insert((cell.r, cell.c), v.clone());
+                max_row = Some(max_row.map_or(cell.r, |m: u32| m.max(cell.r)));
+                max_col = Some(max_col.map_or(cell.c, |m: u32| m.max(cell.c)));
+            }
+        }
+    }
+
+    (grid, max_row, max_col)
+}
+
+/// 导出为 xlsx（支持多 Sheet）
 #[tauri::command]
 pub fn export_xlsx(sheets: Vec<SheetData>, file_path: String) -> Result<(), AppError> {
     let mut workbook = Workbook::new();
 
     for sheet in &sheets {
         let worksheet = workbook.add_worksheet();
-        worksheet.set_name(&sheet.name)?;
+        // sheet 名称长度限制为 31 字符（xlsx 规范）
+        let safe_name: String = sheet.name.chars().take(31).collect();
+        worksheet.set_name(&safe_name)?;
 
-        // 按行列组织数据
-        let mut grid: HashMap<(u32, u32), String> = HashMap::new();
-        let mut max_row = 0u32;
-        let mut max_col = 0u32;
+        let (grid, max_row_opt, max_col_opt) = cells_to_grid(&sheet.cells);
 
-        for cell in &sheet.cells {
-            if let Some(ref v) = cell.v {
-                if !v.is_empty() {
-                    grid.insert((cell.r, cell.c), v.clone());
-                    if cell.r > max_row {
-                        max_row = cell.r;
-                    }
-                    if cell.c > max_col {
-                        max_col = cell.c;
-                    }
-                }
-            }
-        }
+        // 若该 sheet 完全为空，跳过写入
+        let (max_row, max_col) = match (max_row_opt, max_col_opt) {
+            (Some(r), Some(c)) => (r, c),
+            _ => continue,
+        };
 
-        // 写入数据
         for row in 0..=max_row {
             for col in 0..=max_col {
                 if let Some(val) = grid.get(&(row, col)) {
-                    // 尝试写为数字，否则写字符串
+                    // 优先尝试写为数字，否则写字符串
                     if let Ok(num) = val.parse::<f64>() {
                         worksheet.write_number(row, col as u16, num)?;
                     } else {
@@ -85,7 +95,6 @@ pub fn export_xlsx(sheets: Vec<SheetData>, file_path: String) -> Result<(), AppE
             }
         }
 
-        // 自动调整列宽
         worksheet.autofit();
     }
 
@@ -99,34 +108,21 @@ pub fn export_csv(sheets: Vec<SheetData>, file_path: String) -> Result<(), AppEr
     let sheet = sheets
         .into_iter()
         .next()
-        .ok_or_else(|| AppError::EmptyData("无数据".to_string()))?;
+        .ok_or_else(|| AppError::EmptyData("无 sheet 数据".to_string()))?;
 
-    let mut grid: HashMap<(u32, u32), String> = HashMap::new();
-    let mut max_row = 0u32;
-    let mut max_col = 0u32;
+    let (grid, max_row_opt, max_col_opt) = cells_to_grid(&sheet.cells);
 
-    for cell in &sheet.cells {
-        if let Some(ref v) = cell.v {
-            if !v.is_empty() {
-                grid.insert((cell.r, cell.c), v.clone());
-                if cell.r > max_row {
-                    max_row = cell.r;
-                }
-                if cell.c > max_col {
-                    max_col = cell.c;
-                }
-            }
-        }
-    }
-
+    // 若无数据，写空文件即可（不报错）
     let file = std::fs::File::create(&file_path)?;
     let mut wtr = csv::Writer::from_writer(file);
 
-    for row in 0..=max_row {
-        let record: Vec<String> = (0..=max_col)
-            .map(|col| grid.get(&(row, col)).cloned().unwrap_or_default())
-            .collect();
-        wtr.write_record(&record)?;
+    if let (Some(max_row), Some(max_col)) = (max_row_opt, max_col_opt) {
+        for row in 0..=max_row {
+            let record: Vec<String> = (0..=max_col)
+                .map(|col| grid.get(&(row, col)).cloned().unwrap_or_default())
+                .collect();
+            wtr.write_record(&record)?;
+        }
     }
 
     wtr.flush()?;
