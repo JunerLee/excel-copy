@@ -36,6 +36,7 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      # ---- 构建 Tauri（NSIS 安装包 + release exe）----
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
@@ -48,16 +49,52 @@ jobs:
 
             轻量级 Excel 数据中转工具 —— 从 Excel 复制粘贴，编辑，导出为 xlsx/csv。
 
-            ### 安装说明
+            ### 下载说明
 
-            - **Excel-Copy_x64-setup.exe** — NSIS 安装包（推荐，双击安装即用）
-            - 运行环境：Windows 10 1803+ / Windows 11，需要 WebView2（随 Edge 自动安装，几乎所有 Win10/11 已有）
+            | 文件 | 说明 |
+            |------|------|
+            | `Excel.Copy_x64-setup.exe` | ✅ **安装版**（推荐）双击安装，自动注册卸载程序 |
+            | `Excel.Copy_x64-portable.zip` | 📦 **便携版**（绿色免安装）解压后直接运行 exe |
+
+            ### 系统要求
+
+            - Windows 10 1803+ 或 Windows 11（x64）
+            - 需要 WebView2 运行时（随 Microsoft Edge 自动安装，几乎所有 Win10/11 已有；若没有请先安装 [WebView2](https://developer.microsoft.com/zh-cn/microsoft-edge/webview2/)）
 
             ### 使用方法
 
             1. 在 Excel 中选中单元格，按 `Ctrl+C` 复制
             2. 切换到 Excel Copy，按 `Ctrl+V` 粘贴
-            3. 编辑完成后，点击「保存」导出为 xlsx 或 csv
+            3. 支持多 Sheet 页签、单元格编辑、公式等操作
+            4. 编辑完成后点击「保存」，选择导出为 xlsx 或 csv
           releaseDraft: false
           prerelease: false
           includeUpdaterJson: false
+
+      # ---- 打包便携版 zip（直接取 release exe）----
+      - name: Package portable zip
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}" -replace '^v', ''
+          $exePath = "src-tauri\target\release\excel-copy.exe"
+
+          if (-Not (Test-Path $exePath)) {
+            Write-Error "找不到 release exe: $exePath"
+            exit 1
+          }
+
+          $zipName = "Excel.Copy_${version}_x64-portable.zip"
+          $stagingDir = "portable-staging"
+          New-Item -ItemType Directory -Force -Path $stagingDir | Out-Null
+          Copy-Item $exePath "$stagingDir\Excel Copy.exe"
+
+          Compress-Archive -Path "$stagingDir\*" -DestinationPath $zipName -Force
+          Write-Host "✓ 便携版打包完成: $zipName ($('{0:N1}' -f ((Get-Item $zipName).Length / 1MB)) MB)"
+
+      # ---- 上传便携版到已创建的 Release ----
+      - name: Upload portable zip to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "Excel.Copy_*_x64-portable.zip"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
