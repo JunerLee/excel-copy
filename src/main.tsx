@@ -10,12 +10,33 @@ interface ToastItem {
   type: string;
 }
 
+// ---- 全局错误捕获：确保任何 JS 错误都能可见 ----
+window.addEventListener("error", (e) => {
+  const msg = `[全局错误] ${e.message}\n文件: ${e.filename}:${e.lineno}\n${e.error?.stack ?? ""}`;
+  console.error(msg);
+  // 写入 DOM，确保即使 React 没挂载也能看到
+  const errDiv = document.getElementById("startup-error");
+  if (errDiv) {
+    errDiv.style.display = "block";
+    errDiv.textContent = msg;
+  }
+});
+
+window.addEventListener("unhandledrejection", (e) => {
+  const msg = `[未处理的 Promise 错误] ${String(e.reason)}`;
+  console.error(msg);
+  const errDiv = document.getElementById("startup-error");
+  if (errDiv) {
+    errDiv.style.display = "block";
+    errDiv.textContent = (errDiv.textContent ?? "") + "\n" + msg;
+  }
+});
+
 // Toast 渲染容器（全局单例）
 const ToastRoot: React.FC = () => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
   useEffect(() => {
-    // onToastChange 返回取消注册函数，useEffect 清理时调用
     const unsubscribe = onToastChange((items) => {
       setToasts(items as ToastItem[]);
     });
@@ -35,7 +56,12 @@ const ToastRoot: React.FC = () => {
   );
 };
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+const rootEl = document.getElementById("root");
+if (!rootEl) {
+  throw new Error("找不到 #root 元素，HTML 结构异常");
+}
+
+ReactDOM.createRoot(rootEl).render(
   <React.StrictMode>
     <App />
     <ToastRoot />

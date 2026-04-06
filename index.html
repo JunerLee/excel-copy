@@ -4,8 +4,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Excel Copy</title>
+    <style>
+      /* 启动错误提示（正常运行时不可见） */
+      #startup-error {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #1e1e1e;
+        color: #f44;
+        font-family: monospace;
+        font-size: 13px;
+        padding: 24px;
+        white-space: pre-wrap;
+        word-break: break-all;
+        z-index: 99999;
+        overflow: auto;
+      }
+    </style>
   </head>
   <body>
+    <!-- 启动错误兜底显示层：JS 报错时显示，正常启动时被 React 覆盖 -->
+    <div id="startup-error"></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
