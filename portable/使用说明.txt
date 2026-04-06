@@ -1,0 +1,26 @@
+Excel Copy 便携版
+================================
+
+使用前提
+--------
+本便携版需要系统已安装 WebView2 运行时。
+现代 Windows 10/11 已通过 Microsoft Edge 自动安装，通常无需额外操作。
+
+如果双击 "Excel Copy.exe" 没有任何反应
+---------------------------------------
+说明系统缺少 WebView2 运行时，请：
+1. 访问 https://developer.microsoft.com/zh-cn/microsoft-edge/webview2/#download-section
+2. 下载并安装 "常青版独立安装程序（x64）"
+3. 安装完成后重新运行本程序
+
+推荐使用安装版
+--------------
+如果不想手动安装依赖，请使用安装版（Excel.Copy_x64-setup.exe），
+安装程序会自动检测并安装所需的 WebView2 运行时。
+
+使用方法
+--------
+1. 在 Excel 中选中单元格，按 Ctrl+C 复制
+2. 双击打开 "Excel Copy.exe"
+3. 按 Ctrl+V 粘贴数据
+4. 编辑完成后点击「保存」导出为 xlsx 或 csv
