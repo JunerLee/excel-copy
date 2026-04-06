@@ -40,6 +40,26 @@ function createTab(title?: string): TabItem {
 }
 
 /**
+ * 将 sheet.data（二维数组）转换为 celldata（Fortune-Sheet 初始化需要的格式）。
+ * getAllSheets() 返回的 celldata 不是实时的，必须从 data 手动转换。
+ */
+function dataToCelldata(data: Sheet["data"]): Sheet["celldata"] {
+  const celldata: Sheet["celldata"] = [];
+  if (!data) return celldata;
+  for (let r = 0; r < data.length; r++) {
+    const row = data[r];
+    if (!row) continue;
+    for (let c = 0; c < row.length; c++) {
+      const v = row[c];
+      if (v != null) {
+        celldata.push({ r, c, v });
+      }
+    }
+  }
+  return celldata;
+}
+
+/**
  * 从 Fortune-Sheet 的 sheet.data（二维数组）中提取导出用的精简数据。
  * getAllSheets() 返回的 celldata 不是实时的，必须从 data 字段提取。
  */
@@ -106,9 +126,14 @@ const App: React.FC = () => {
     if (workbookRef.current) {
       try {
         const latestSheets = workbookRef.current.getAllSheets();
+        // getAllSheets() 的 celldata 不是实时的，需要从 data 重新生成
+        const synced = latestSheets.map((s) => ({
+          ...s,
+          celldata: dataToCelldata(s.data),
+        }));
         setTabs((prev) =>
           prev.map((t) =>
-            t.id === activeTabId ? { ...t, sheets: latestSheets } : t
+            t.id === activeTabId ? { ...t, sheets: synced } : t
           )
         );
       } catch {

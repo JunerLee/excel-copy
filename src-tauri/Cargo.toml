@@ -1,6 +1,6 @@
 [package]
 name = "excel-copy"
-version = "0.6.0"
+version = "0.6.1"
 description = "Excel Copy - 轻量级表格数据中转工具"
 authors = ["JunerLee"]
 edition = "2021"
