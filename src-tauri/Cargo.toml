@@ -1,13 +1,15 @@
 [package]
 name = "excel-copy"
-version = "0.4.0"
+version = "0.5.0"
 description = "Excel Copy - 轻量级表格数据中转工具"
 authors = ["JunerLee"]
 edition = "2021"
 rust-version = "1.77"
 
-# Windows 桌面应用只需要 bin，不需要 staticlib/cdylib
-# staticlib 在 Windows MSVC 会引入 C 运行时冲突
+# see: https://github.com/rust-lang/cargo/issues/8519
+[lib]
+name = "excel_copy_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
@@ -26,5 +28,5 @@ thiserror = "2"
 opt-level = "z"
 lto = true
 codegen-units = 1
-# 移除 panic = "abort"：Windows 上 abort 会完全静默，改为 unwind 可以弹出错误对话框
-# 移除 strip = true：strip 在 Windows MSVC 工具链下行为不稳定
+panic = "abort"
+strip = true
