@@ -129,52 +129,16 @@ body,
 /* 表格容器 */
 .sheet-container {
   flex: 1;
+  min-height: 0;
   overflow: hidden;
   position: relative;
   background: #fff;
 }
 
-/* 粘贴提示层（空状态） */
-.paste-hint {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  background: #fafafa;
-  z-index: 10;
-  pointer-events: none;
-  transition: opacity 0.2s;
-}
-
-.paste-hint.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.paste-hint-icon {
-  font-size: 56px;
-  opacity: 0.25;
-}
-
-.paste-hint-text {
-  font-size: 16px;
-  color: #999;
-  text-align: center;
-  line-height: 1.6;
-}
-
-.paste-hint-shortcut {
-  display: inline-block;
-  background: #e8e8e8;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 2px 8px;
-  font-family: monospace;
-  font-size: 13px;
-  color: #555;
+/* Fortune-Sheet 尺寸修正 —— 确保各级容器高度正确传递 */
+.sheet-container > .fortune-container {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* Toast 通知 */
@@ -210,10 +174,79 @@ body,
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Fortune-Sheet 强制铺满容器 */
-.luckysheet {
-  width: 100% !important;
-  height: 100% !important;
+/* Tab 栏 */
+.tab-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0 8px;
+  background: #e8e8e8;
+  border-bottom: 1px solid #ccc;
+  flex-shrink: 0;
+  min-height: 32px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.tab-bar::-webkit-scrollbar {
+  height: 2px;
+}
+
+.tab-bar::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 1px;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  font-size: 12px;
+  color: #555;
+  cursor: pointer;
+  white-space: nowrap;
+  border-right: 1px solid #d0d0d0;
+  background: #e8e8e8;
+  transition: background 0.1s, color 0.1s;
+  position: relative;
+  min-height: 32px;
+}
+
+.tab-item:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.tab-item.tab-active {
+  background: #fff;
+  color: #217346;
+  font-weight: 600;
+  border-bottom: 2px solid #217346;
+}
+
+.tab-title {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tab-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 14px;
+  line-height: 1;
+  color: #999;
+  border-radius: 3px;
+  transition: background 0.1s, color 0.1s;
+}
+
+.tab-close:hover {
+  background: #d44;
+  color: #fff;
 }
 
 /* 保存下拉菜单 */

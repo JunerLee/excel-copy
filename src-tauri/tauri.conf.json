@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "productName": "Excel Copy",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "identifier": "com.junerlee.excel-copy",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -51,13 +51,5 @@
     "copyright": "© 2026 JunerLee",
     "category": "Utility"
   },
-  "plugins": {
-    "dialog": {},
-    "fs": {
-      "scope": {
-        "allow": ["**"],
-        "deny": []
-      }
-    }
-  }
+  "plugins": {}
 }
