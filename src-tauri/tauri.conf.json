@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "productName": "Excel Copy",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "identifier": "com.junerlee.excel-copy",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -38,6 +38,10 @@
       "icons/icon.ico"
     ],
     "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper",
+        "silent": true
+      },
       "nsis": {
         "languages": ["SimpChinese"],
         "displayLanguageSelector": false,
